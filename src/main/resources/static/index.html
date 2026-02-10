@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinyl Marketplace - Browse Collection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/index.html">
+                <i class="bi bi-vinyl-fill me-2"></i>Vinyl Marketplace
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="search-container">
+            <h1 class="hero-title mb-3"><i class="bi bi-music-note-beamed me-2"></i>Browse Our Vinyl Collection</h1>
+            <p class="text-light mb-4">Search through our curated collection of classic and rare vinyl records</p>
+            
+            <form id="searchForm" class="row g-3">
+                <div class="col-md-10">
+                    <input type="text" 
+                           class="form-control form-control-lg" 
+                           id="searchInput"
+                           placeholder="Search by title, artist, or genre...">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-search btn-lg w-100">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <p class="results-count mb-0" id="resultsCount">
+                Loading...
+            </p>
+            <div class="d-flex gap-2 align-items-center">
+                <div class="btn-group view-toggle me-2" role="group">
+                    <button type="button" class="btn btn-view-toggle active" id="gridViewBtn" title="Grid View">
+                        <i class="bi bi-grid-3x3-gap-fill"></i>
+                    </button>
+                    <button type="button" class="btn btn-view-toggle" id="listViewBtn" title="List View">
+                        <i class="bi bi-list-ul"></i>
+                    </button>
+                </div>
+                <a href="#" id="clearSearchBtn" class="btn btn-clear-search btn-sm" style="display: none;">
+                    <i class="bi bi-x-circle me-1"></i> Clear Search
+                </a>
+                <a href="/vinyl-form.html" class="btn btn-search btn-sm">
+                    <i class="bi bi-plus-lg me-1"></i> Add Vinyl
+                </a>
+            </div>
+        </div>
+
+        <div id="noResults" class="no-results" style="display: none;">
+            <i class="bi bi-disc"></i>
+            <h3>No vinyl records found</h3>
+            <p>Try adjusting your search terms or browse our full collection</p>
+            <a href="/index.html" class="btn btn-search mt-3">View All Records</a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4" id="vinylGrid">
+        </div>
+
+        <div class="vinyl-list" id="vinylList" style="display: none;">
+        </div>
+    </div>
+
+    <footer class="text-center py-4 mt-5">
+        <p class="text-muted mb-0">&copy; 2026 Vinyl Marketplace. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentSearch = '';
+        let currentView = 'grid';
+        let currentVinyls = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const search = urlParams.get('search');
+            if (search) {
+                document.getElementById('searchInput').value = search;
+                currentSearch = search;
+            }
+            loadVinyls(search);
+        });
+
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const search = document.getElementById('searchInput').value.trim();
+            currentSearch = search;
+            if (search) {
+                window.history.pushState({}, '', `?search=${encodeURIComponent(search)}`);
+            } else {
+                window.history.pushState({}, '', '/index.html');
+            }
+            loadVinyls(search);
+        });
+
+        document.getElementById('clearSearchBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('searchInput').value = '';
+            currentSearch = '';
+            window.history.pushState({}, '', '/index.html');
+            loadVinyls();
+        });
+
+        document.getElementById('gridViewBtn').addEventListener('click', () => {
+            setView('grid');
+        });
+
+        document.getElementById('listViewBtn').addEventListener('click', () => {
+            setView('list');
+        });
+
+        function setView(view) {
+            currentView = view;
+            const gridBtn = document.getElementById('gridViewBtn');
+            const listBtn = document.getElementById('listViewBtn');
+            const grid = document.getElementById('vinylGrid');
+            const list = document.getElementById('vinylList');
+
+            if (view === 'grid') {
+                gridBtn.classList.add('active');
+                listBtn.classList.remove('active');
+                grid.style.display = '';
+                list.style.display = 'none';
+            } else {
+                gridBtn.classList.remove('active');
+                listBtn.classList.add('active');
+                grid.style.display = 'none';
+                list.style.display = '';
+            }
+            renderVinyls(currentVinyls, currentSearch);
+        }
+
+        async function loadVinyls(search = '') {
+            try {
+                let url = '/api/vinyls';
+                if (search) {
+                    url += `?search=${encodeURIComponent(search)}`;
+                }
+                
+                const response = await fetch(url);
+                const vinyls = await response.json();
+                currentVinyls = vinyls;
+                
+                renderVinyls(vinyls, search);
+            } catch (error) {
+                console.error('Error loading vinyls:', error);
+                showAlert('Failed to load vinyl records', 'danger');
+            }
+        }
+
+        function renderVinyls(vinyls, search) {
+            const grid = document.getElementById('vinylGrid');
+            const list = document.getElementById('vinylList');
+            const noResults = document.getElementById('noResults');
+            const resultsCount = document.getElementById('resultsCount');
+            const clearBtn = document.getElementById('clearSearchBtn');
+
+            if (search) {
+                resultsCount.innerHTML = `Showing <strong>${vinyls.length}</strong> results for "<span>${escapeHtml(search)}</span>"`;
+                clearBtn.style.display = 'inline-block';
+            } else {
+                resultsCount.innerHTML = `Showing all <strong>${vinyls.length}</strong> vinyl records`;
+                clearBtn.style.display = 'none';
+            }
+
+            if (vinyls.length === 0) {
+                grid.innerHTML = '';
+                list.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+            grid.innerHTML = vinyls.map(vinyl => createVinylCard(vinyl)).join('');
+            list.innerHTML = vinyls.map(vinyl => createVinylListItem(vinyl)).join('');
+        }
+
+        function createVinylCard(vinyl) {
+            const conditionClass = getConditionClass(vinyl.condition);
+            const price = vinyl.price ? vinyl.price.toFixed(2) : '0.00';
+            
+            return `
+                <div class="col">
+                    <a href="/vinyl-detail.html?id=${vinyl.id}" class="text-decoration-none">
+                        <div class="card vinyl-card h-100">
+                            <img src="${escapeHtml(vinyl.imageUrl || '/images/default-vinyl.svg')}" 
+                                 alt="${escapeHtml(vinyl.title)}" 
+                                 class="card-img-top"
+                                 onerror="this.src='/images/default-vinyl.svg'">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">${escapeHtml(vinyl.title)}</h5>
+                                <p class="artist mb-2">${escapeHtml(vinyl.artist)}</p>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="genre-badge">${escapeHtml(vinyl.genre)}</span>
+                                    <span class="year">${vinyl.releaseYear}</span>
+                                </div>
+                                <div class="mt-auto d-flex justify-content-between align-items-center">
+                                    <span class="price">$${price}</span>
+                                    <span class="condition ${conditionClass}">${escapeHtml(vinyl.condition)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            `;
+        }
+
+        function createVinylListItem(vinyl) {
+            const conditionClass = getConditionClass(vinyl.condition);
+            const price = vinyl.price ? vinyl.price.toFixed(2) : '0.00';
+            
+            return `
+                <a href="/vinyl-detail.html?id=${vinyl.id}" class="text-decoration-none">
+                    <div class="vinyl-list-item">
+                        <img src="${escapeHtml(vinyl.imageUrl || '/images/default-vinyl.svg')}" 
+                             alt="${escapeHtml(vinyl.title)}" 
+                             class="vinyl-list-image"
+                             onerror="this.src='/images/default-vinyl.svg'">
+                        <div class="vinyl-list-info">
+                            <h5 class="vinyl-list-title">${escapeHtml(vinyl.title)}</h5>
+                            <p class="vinyl-list-artist">${escapeHtml(vinyl.artist)}</p>
+                        </div>
+                        <div class="vinyl-list-meta">
+                            <span class="genre-badge">${escapeHtml(vinyl.genre)}</span>
+                            <span class="vinyl-list-year">${vinyl.releaseYear}</span>
+                        </div>
+                        <div class="vinyl-list-price-condition">
+                            <span class="vinyl-list-price">$${price}</span>
+                            <span class="condition ${conditionClass}">${escapeHtml(vinyl.condition)}</span>
+                        </div>
+                    </div>
+                </a>
+            `;
+        }
+
+        function getConditionClass(condition) {
+            switch (condition) {
+                case 'Mint': return 'condition-mint';
+                case 'Excellent': return 'condition-excellent';
+                case 'Very Good': return 'condition-very-good';
+                default: return 'condition-good';
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>${escapeHtml(message)}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
