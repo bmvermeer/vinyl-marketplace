@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>io.snyk.devrel</groupId>
-	<artifactId>vynil-marketplace</artifactId>
+	<artifactId>vinyl-marketplace</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>vynil-marketplace</name>
+	<name>vinyl-marketplace</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
