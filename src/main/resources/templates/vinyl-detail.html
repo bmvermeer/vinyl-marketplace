@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${vinyl.title} + ' - Vinyl Marketplace'">Vinyl Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #eaeaea;
+            min-height: 100vh;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+        }
+        .detail-container {
+            background: #16213e;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        .vinyl-image {
+            border-radius: 15px;
+            max-height: 400px;
+            object-fit: cover;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .vinyl-title {
+            color: #e94560;
+            font-weight: 700;
+            font-size: 2.5rem;
+        }
+        .vinyl-artist {
+            color: #a0a0a0;
+            font-size: 1.5rem;
+        }
+        .genre-badge {
+            background-color: #e94560;
+            color: white;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+        .price {
+            color: #4ecca3;
+            font-weight: 700;
+            font-size: 2rem;
+        }
+        .condition {
+            font-size: 1rem;
+            padding: 0.4rem 1rem;
+            border-radius: 15px;
+        }
+        .condition-mint { background-color: #4ecca3; color: #1a1a2e; }
+        .condition-excellent { background-color: #3498db; color: white; }
+        .condition-very-good { background-color: #f39c12; color: #1a1a2e; }
+        .condition-good { background-color: #95a5a6; color: #1a1a2e; }
+        .info-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .info-value {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        .btn-back {
+            background-color: transparent;
+            border: 2px solid #e94560;
+            color: #e94560;
+        }
+        .btn-back:hover {
+            background-color: #e94560;
+            color: white;
+        }
+        .btn-buy {
+            background-color: #4ecca3;
+            border: none;
+            color: #1a1a2e;
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+        }
+        .btn-buy:hover {
+            background-color: #3db892;
+            color: #1a1a2e;
+        }
+        .description-box {
+            background: #1a1a2e;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/vinyls">
+                <i class="bi bi-vinyl-fill me-2"></i>Vinyl Marketplace
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="/vinyls" class="btn btn-back mb-4">
+            <i class="bi bi-arrow-left me-2"></i>Back to Collection
+        </a>
+
+        <div class="detail-container">
+            <div class="row">
+                <div class="col-md-5">
+                    <img th:src="${vinyl.imageUrl}" 
+                         th:alt="${vinyl.title}" 
+                         class="img-fluid vinyl-image w-100"
+                         onerror="this.src='/images/default-vinyl.svg'">
+                </div>
+                <div class="col-md-7">
+                    <!-- XSS VULNERABILITY: Using th:utext renders HTML unescaped -->
+                    <h1 class="vinyl-title" th:utext="${vinyl.title}">Album Title</h1>
+                    <p class="vinyl-artist" th:utext="${vinyl.artist}">Artist Name</p>
+                    
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <span class="genre-badge" th:text="${vinyl.genre}">Genre</span>
+                        <span class="condition" 
+                              th:classappend="${vinyl.condition == 'Mint'} ? 'condition-mint' : (${vinyl.condition == 'Excellent'} ? 'condition-excellent' : (${vinyl.condition == 'Very Good'} ? 'condition-very-good' : 'condition-good'))"
+                              th:text="${vinyl.condition}">Condition</span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <p class="info-label mb-1">Release Year</p>
+                            <p class="info-value" th:text="${vinyl.releaseYear}">Year</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="info-label mb-1">Price</p>
+                            <p class="price" th:text="'$' + ${#numbers.formatDecimal(vinyl.price, 1, 2)}">$0.00</p>
+                        </div>
+                    </div>
+
+                    <div class="description-box">
+                        <p class="info-label mb-2">About this record</p>
+                        <!-- XSS VULNERABILITY: Description rendered unescaped -->
+                        <p class="mb-0" th:utext="${vinyl.title} + ' by ' + ${vinyl.artist} + ' is a classic ' + ${vinyl.genre} + ' album released in ' + ${vinyl.releaseYear} + '.'">
+                            Description placeholder
+                        </p>
+                    </div>
+
+                    <div class="mt-4 d-flex gap-3">
+                        <button class="btn btn-buy btn-lg">
+                            <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                        </button>
+                        <a th:href="@{/vinyls/{id}/edit(id=${vinyl.id})}" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-pencil me-2"></i>Edit
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-4 mt-5">
+        <p class="text-muted mb-0">&copy; 2026 Vinyl Marketplace. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

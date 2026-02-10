@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f4a460"/>
+      <stop offset="100%" style="stop-color:#cd853f"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="300" fill="url(#bg)"/>
+  <circle cx="150" cy="120" r="60" fill="#8b4513" stroke="#654321" stroke-width="3"/>
+  <circle cx="150" cy="120" r="20" fill="#654321"/>
+  <text x="150" y="220" font-family="Georgia, serif" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">SONGS IN THE KEY OF LIFE</text>
+  <text x="150" y="245" font-family="Georgia, serif" font-size="12" fill="#fff" text-anchor="middle">Stevie Wonder</text>
+  <text x="150" y="270" font-family="Georgia, serif" font-size="10" fill="#ddd" text-anchor="middle">1976</text>
+</svg>
