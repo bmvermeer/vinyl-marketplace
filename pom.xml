@@ -59,6 +59,11 @@
             <artifactId>datafaker</artifactId>
             <version>1.7.0</version>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.4.12</version>
+        </dependency>
 	</dependencies>
 
 	<build>
