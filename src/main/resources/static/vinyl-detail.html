@@ -68,21 +68,23 @@
             const conditionClass = getConditionClass(vinyl.condition);
             const price = vinyl.price ? vinyl.price.toFixed(2) : '0.00';
 
+            // SECURITY: Intentionally vulnerable to stored XSS for security lesson.
+            // Vinyl fields from DB are rendered without escaping - do not use in production.
             container.innerHTML = `
                 <div class="row">
                     <div class="col-md-5">
                         <img src="${escapeHtml(vinyl.imageUrl || '/images/default-vinyl.svg')}" 
-                             alt="${escapeHtml(vinyl.title)}" 
+                             alt="${vinyl.title}" 
                              class="img-fluid vinyl-image w-100"
                              onerror="this.src='/images/default-vinyl.svg'">
                     </div>
                     <div class="col-md-7">
-                        <h1 class="vinyl-title">${escapeHtml(vinyl.title)}</h1>
-                        <p class="vinyl-artist">${escapeHtml(vinyl.artist)}</p>
+                        <h1 class="vinyl-title">${vinyl.title}</h1>
+                        <p class="vinyl-artist">${vinyl.artist}</p>
                         
                         <div class="d-flex align-items-center gap-3 mb-4">
-                            <span class="genre-badge">${escapeHtml(vinyl.genre)}</span>
-                            <span class="condition ${conditionClass}">${escapeHtml(vinyl.condition)}</span>
+                            <span class="genre-badge">${vinyl.genre}</span>
+                            <span class="condition ${conditionClass}">${vinyl.condition}</span>
                         </div>
 
                         <div class="row">
@@ -92,13 +94,13 @@
                             </div>
                             <div class="col-6">
                                 <p class="info-label mb-1">Price</p>
-                                <p class="price">$${price}</p>
+                                <p class="price">€${price}</p>
                             </div>
                         </div>
 
                         <div class="description-box">
                             <p class="info-label mb-2">About this record</p>
-                            <p class="mb-0">${escapeHtml(vinyl.title)} by ${escapeHtml(vinyl.artist)} is a classic ${escapeHtml(vinyl.genre)} album released in ${vinyl.releaseYear}.</p>
+                            <p class="mb-0">${vinyl.title} by ${vinyl.artist} is a classic ${vinyl.genre} album released in ${vinyl.releaseYear}.</p>
                         </div>
 
                         <div class="mt-4 d-flex gap-3">

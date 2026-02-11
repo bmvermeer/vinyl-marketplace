@@ -44,7 +44,24 @@ public class DataLoader implements CommandLineRunner {
                 new Vinyl("The Rise and Fall of Ziggy Stardust", "David Bowie", "Glam Rock", 1972, 40.99, "Very Good", "/images/albums/ziggy-stardust.jpg"),
                 new Vinyl("London Calling", "The Clash", "Punk Rock", 1979, 38.99, "Excellent", "/images/albums/london-calling.jpg"),
                 new Vinyl("Blue", "Joni Mitchell", "Folk", 1971, 35.99, "Mint", "/images/albums/blue.jpg"),
-                new Vinyl("Pet Sounds", "The Beach Boys", "Rock", 1966, 46.99, "Very Good", "/images/albums/pet-sounds.jpg")
+                new Vinyl("Pet Sounds", "The Beach Boys", "Rock", 1966, 46.99, "Very Good", "/images/albums/pet-sounds.jpg"),
+                new Vinyl("Revolver", "The Beatles", "Rock", 1966, 44.99, "Excellent", "/images/albums/revolver.jpg"),
+                new Vinyl("The Joshua Tree", "U2", "Rock", 1987, 39.99, "Mint", "/images/albums/the-joshua-tree.png"),
+                new Vinyl("Appetite for Destruction", "Guns N' Roses", "Hard Rock", 1987, 41.99, "Very Good", "/images/albums/appetite-for-destruction.jpg"),
+                // Stored XSS (lesson): <script> doesn't run when injected via innerHTML; img onerror does
+                new Vinyl("Blood on the Tracks", "Bob Dylan <img src=x onerror=\"alert('XSS')\">", "Folk Rock", 1975, 37.99, "Excellent", "/images/albums/blood-on-the-tracks.jpg"),
+                new Vinyl("In the Court of the Crimson King", "King Crimson", "Progressive Rock", 1969, 48.99, "Very Good", "/images/albums/in-the-court-of-the-crimson-king.jpg"),
+                new Vinyl("Graceland", "Paul Simon", "Rock", 1986, 36.99, "Excellent", "/images/albums/graceland.jpg"),
+                new Vinyl("The Queen Is Dead", "The Smiths", "Alternative Rock", 1986, 39.99, "Mint", "/images/albums/the-queen-is-dead.png"),
+                new Vinyl("Doolittle", "Pixies", "Alternative Rock", 1989, 34.99, "Very Good", "/images/albums/doolittle.jpg"),
+                new Vinyl("Sticky Fingers", "The Rolling Stones", "Rock", 1971, 46.99, "Excellent", "/images/albums/sticky-fingers.png"),
+                new Vinyl("Illmatic", "Nas", "Hip Hop", 1994, 42.99, "Mint", "/images/albums/illmatic.jpg"),
+                new Vinyl("Ten", "Pearl Jam", "Grunge", 1991, 38.99, "Very Good", "/images/albums/ten.jpg"),
+                new Vinyl("Slowhand", "Eric Clapton", "Rock", 1977, 36.99, "Excellent", "/images/albums/slowhand.jpg"),
+                new Vinyl("The Colour and the Shape", "Foo Fighters", "Rock", 1997, 35.99, "Mint", "/images/albums/the-colour-and-the-shape.jpg"),
+                new Vinyl("The Miseducation of Lauryn Hill", "Lauryn Hill", "Hip Hop", 1998, 44.99, "Mint", "/images/albums/the-miseducation-of-lauryn-hill.png"),
+                new Vinyl("Ready to Die", "The Notorious B.I.G.", "Hip Hop", 1994, 43.99, "Excellent", "/images/albums/ready-to-die.jpg"),
+                new Vinyl("The Chronic", "Dr. Dre", "Hip Hop", 1992, 41.99, "Very Good", "/images/albums/the-chronic.jpg")
         ).toList();
         
         vinylRepository.saveAll(vinyls);
